@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>С днём рождения!</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Marck+Script&display=swap" rel="stylesheet">
+<style>
+:root{--plum:#2a1233;--velvet:#4a1f55;--gold:#f2c46d;--rose:#ff8fa3;--paper:#fbf7ef;--ink:#3b2740}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;min-height:100vh;overflow-x:hidden;color:#fff;font-family:'Caveat','Comic Sans MS',cursive;
+ background:radial-gradient(ellipse at 50% 0%,#6b2d73 0%,transparent 60%),radial-gradient(ellipse at 50% 100%,#5a2a3f 0%,transparent 55%),var(--plum)}
+button{font:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+
+/* ---------- Интро: сургучная печать ---------- */
+#intro{position:fixed;inset:0;z-index:100;display:grid;place-items:center;text-align:center;padding:24px;
+ background:radial-gradient(circle at 50% 40%,#5b2a66,var(--plum) 70%);transition:opacity 1s,transform 1s}
+#intro.gone{opacity:0;transform:scale(1.15);pointer-events:none}
+#intro p{font-size:clamp(26px,5vw,38px);margin:0 0 28px;color:var(--gold)}
+#seal{width:150px;height:150px;border-radius:50%;border:0;color:#ffd9de;font-size:64px;
+ background:radial-gradient(circle at 35% 30%,#ff6b81,#b3203c 60%,#7a1228);
+ box-shadow:0 0 0 8px rgba(179,32,60,.35),0 12px 40px rgba(0,0,0,.6);animation:beat 1.6s ease-in-out infinite}
+#seal:hover{filter:brightness(1.15)}
+@keyframes beat{50%{transform:scale(1.09)}}
+
+/* ---------- Шапка ---------- */
+header{text-align:center;padding:48px 16px 8px}
+h1{font-family:'Marck Script','Brush Script MT',cursive;font-weight:400;color:var(--gold);
+ font-size:clamp(40px,9vw,84px);line-height:1.1;margin:0;text-shadow:0 4px 24px rgba(242,196,109,.35)}
+h1 span{display:inline-block;opacity:0;transform:translateY(40px) rotate(-12deg)}
+body.open h1 span{animation:pop .7s cubic-bezier(.2,1.6,.4,1) forwards}
+@keyframes pop{to{opacity:1;transform:none}}
+.hint{font-size:clamp(20px,3.5vw,26px);color:#e9c9f0;margin:12px 0 18px}
+.tools{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.tools button{background:transparent;border:2px dashed var(--gold);color:var(--gold);border-radius:30px;
+ padding:8px 22px;font-size:22px;transition:.2s}
+.tools button:hover{background:var(--gold);color:var(--plum)}
+
+/* ---------- Стол с фотографиями ---------- */
+#table{position:relative;width:100%;min-height:60vh;margin-top:10px}
+.card{position:absolute;width:var(--w,200px);background:var(--paper);padding:10px 10px 0;border-radius:3px;color:var(--ink);
+ box-shadow:0 10px 24px rgba(0,0,0,.55);transform:rotate(var(--r,0deg));touch-action:none;user-select:none;
+ cursor:grab;transition:left .8s cubic-bezier(.3,1.3,.5,1),top .8s cubic-bezier(.3,1.3,.5,1),transform .25s,box-shadow .25s}
+.card:hover{transform:rotate(0) scale(1.07);box-shadow:0 18px 40px rgba(0,0,0,.7)}
+.card.drag{transition:transform .25s,box-shadow .25s;cursor:grabbing;transform:rotate(0) scale(1.12)}
+.card img{display:block;width:100%;aspect-ratio:1;object-fit:cover;pointer-events:none;background:#ddd}
+.card b{display:block;font-weight:500;font-size:20px;text-align:center;padding:6px 0 8px;min-height:38px;line-height:1.1}
+.card::before{content:"";position:absolute;top:-10px;left:50%;width:70px;height:22px;margin-left:-35px;transform:rotate(-3deg);
+ background:rgba(242,196,109,.7)}
+
+/* ---------- Письмо ---------- */
+#letter{max-width:640px;margin:60px auto 90px;padding:34px 30px;background:var(--paper);color:var(--ink);
+ font-size:clamp(24px,4vw,30px);line-height:1.3;text-align:center;transform:rotate(-1deg);
+ box-shadow:0 14px 40px rgba(0,0,0,.6);border-radius:3px;white-space:pre-line}
+
+/* ---------- Просмотр ---------- */
+#box{position:fixed;inset:0;z-index:50;background:rgba(20,6,26,.93);display:none;align-items:center;justify-content:center;gap:10px;padding:16px}
+#box.on{display:flex}
+#box figure{margin:0;max-width:min(92vw,760px);background:var(--paper);padding:14px 14px 4px;border-radius:3px;color:var(--ink);
+ animation:zoom .35s cubic-bezier(.2,1.4,.4,1)}
+@keyframes zoom{from{transform:scale(.6) rotate(-6deg);opacity:0}}
+#bimg{display:block;max-width:100%;max-height:70vh;margin:auto}
+#bcap{text-align:center;font-size:28px;padding:8px 0 10px;min-height:48px}
+.nav,#x{background:none;border:0;color:var(--gold);font-size:56px;line-height:1;padding:8px}
+#x{position:absolute;top:8px;right:14px;font-size:40px}
+
+#pop{position:fixed;inset:0;z-index:60;background:rgba(20,6,26,.95);display:none;align-items:center;justify-content:center;padding:56px 16px 24px;overflow:auto}
+#pop.on{display:flex}
+#px{position:absolute;top:8px;right:14px;background:none;border:0;color:var(--gold);font-size:40px;line-height:1}
+#pc{text-align:center;max-width:560px;width:100%;margin:auto}
+.again{background:transparent;border:2px dashed var(--gold);color:var(--gold);border-radius:30px;padding:8px 22px;font-size:22px;margin-top:18px}
+.again:hover{background:var(--gold);color:var(--plum)}
+.note{background:#fff3a8;color:var(--ink);padding:34px 28px;font-size:clamp(26px,5vw,34px);line-height:1.25;transform:rotate(-2deg);box-shadow:0 14px 40px rgba(0,0,0,.6);animation:zoom .35s cubic-bezier(.2,1.4,.4,1)}
+.mem{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.mc{aspect-ratio:1;perspective:600px;border:0;padding:0;background:none}
+.mc i{display:block;width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .5s}
+.mc.up i{transform:rotateY(180deg)}
+.mc i>*{position:absolute;inset:0;backface-visibility:hidden;border-radius:6px}
+.mc .bk{background:repeating-linear-gradient(45deg,var(--velvet),var(--velvet) 8px,#5d2a6b 8px,#5d2a6b 16px);border:2px solid var(--gold);display:grid;place-items:center;font-size:30px;color:var(--gold)}
+.mc img{width:100%;height:100%;object-fit:cover;transform:rotateY(180deg);border:4px solid var(--paper)}
+.mc.ok{opacity:.55}
+.cake{position:relative;width:240px;margin:90px auto 0}
+.cl{height:56px;border-radius:8px;border-top:12px solid #fff}
+.c1{background:#ff8fa3}
+.c2{background:#f2c46d;width:120%;margin-left:-10%;height:64px}
+.cakec{position:absolute;top:-40px;left:0;right:0;display:flex;justify-content:space-around;padding:0 14px}
+.cd{width:14px;height:40px;background:repeating-linear-gradient(#fff 0 8px,var(--rose) 8px 16px);border:0;padding:0;position:relative;border-radius:2px}
+.cd::before{content:"";position:absolute;left:50%;top:-24px;margin-left:-9px;width:18px;height:26px;border-radius:50% 50% 50% 50%/65% 65% 35% 35%;background:radial-gradient(#fff 15%,#ffb347 50%,#ff5b2e);animation:fl .3s alternate infinite}
+.cd.off::before{display:none}
+@keyframes fl{to{transform:scale(.88,1.1) rotate(4deg)}}
+.scr{position:relative;width:min(86vw,420px);aspect-ratio:1;margin:0 auto;border:10px solid var(--paper);box-shadow:0 14px 40px rgba(0,0,0,.6)}
+.scr img,.scr canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.scr img{object-fit:cover}
+.scr canvas{touch-action:none;transition:opacity 1s;cursor:crosshair}
+.garden{position:relative;height:min(60vh,380px);border-radius:16px;overflow:hidden;cursor:pointer;touch-action:manipulation;background:linear-gradient(#2a1a4a 0%,#8a3f73 52%,#3f7a4a 52.1%,#244d30)}
+.fl{position:absolute;font-size:46px;transform-origin:50% 100%;transform:translate(-50%,-100%) scale(0);animation:gr .8s cubic-bezier(.2,1.6,.4,1) forwards}
+@keyframes gr{to{transform:translate(-50%,-100%) scale(1)}}
+.bub{position:absolute;transform:translate(-50%,-100%);background:var(--paper);color:var(--ink);padding:6px 12px;border-radius:12px;font-size:21px;line-height:1.1;width:max-content;max-width:72%;pointer-events:none;animation:bb .4s}
+@keyframes bb{from{opacity:0}}
+.bf{position:absolute;font-size:34px;pointer-events:none;z-index:5;transition:left 1.2s ease-out,top 1.2s ease-out}
+body{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 24 24'%3E%3Cpath fill='%23ff8fa3' stroke='%23fff' stroke-width='1.5' d='M12 21s-8-5.2-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.8-8 11-8 11z'/%3E%3C/svg%3E") 14 14,auto}
+button,.card,.mc,.cd,.garden,.scr canvas{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 24 24'%3E%3Cpath fill='%23f2c46d' stroke='%23fff' stroke-width='1.5' d='M12 21s-8-5.2-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.8-8 11-8 11z'/%3E%3C/svg%3E") 18 18,pointer}
+.tr{position:fixed;z-index:300;pointer-events:none;line-height:1;margin:-9px 0 0 -9px;animation:tr .9s ease-out forwards}
+@keyframes tr{to{opacity:0;transform:translate(var(--dx),var(--dy)) scale(.3) rotate(120deg)}}
+.fall{position:fixed;top:-50px;z-index:200;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(115vh) rotate(360deg)}}
+@media(max-width:600px){.nav{font-size:38px;padding:0}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}h1 span{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<div id="intro">
+  <div>
+    <p>Для тебя есть сюрприз…</p>
+    <button id="seal" aria-label="Открыть">♥</button>
+  </div>
+</div>
+
+<header>
+  <h1 id="title"></h1>
+  <p class="hint">Двигай фотографии, нажимай на них — и листай воспоминания</p>
+  <div class="tools">
+    <button id="shuffle">Перемешать</button>
+    <button id="surprise">Сюрприз</button>
+    <button id="slides">Слайд-шоу</button>
+    <button id="wish">Пожелание</button>
+    <button id="memo">Игра в пары</button>
+    <button id="cake">Торт</button>
+    <button id="scratch">Стирашка</button>
+    <button id="garden">Волшебный сад</button>
+    <button id="music" hidden>Музыка</button>
+  </div>
+</header>
+
+<main id="table"></main>
+<div id="letter"></div>
+
+<div id="pop"><button id="px" aria-label="Закрыть">×</button><div id="pc"></div></div>
+
+<div id="box">
+  <button id="x" aria-label="Закрыть">×</button>
+  <button class="nav" id="pv" aria-label="Назад">‹</button>
+  <figure><img id="bimg" alt=""><figcaption id="bcap"></figcaption></figure>
+  <button class="nav" id="nx" aria-label="Вперёд">›</button>
+</div>
+
+<script>
+/* ======== ЗДЕСЬ МЕНЯЕШЬ ТЕКСТЫ ======== */
+const TITLE   = "С днём рождения, бабушка!";
+const MESSAGE = "Дорогая бабушка!\nСпасибо тебе за тепло, за пироги и за все наши истории.\nЗдоровья, радости и много-много счастливых дней!\nЛюбим тебя ♥";
+// Подписи к фото: номер файла : "подпись"
+const CAPTIONS = {
+  1: "Лето, которое не забыть",
+  2: "Наша любимая",
+  3: "Вместе — лучше всего"
+};
+// Пожелания в «баночке» (пиши свои, от всей семьи!)
+const WISHES = [
+  "Чтобы каждое утро начиналось с хорошего настроения!",
+  "Крепкого здоровья и долгих-долгих лет жизни!",
+  "Чтобы рядом всегда были те, кто тебя любит!",
+  "Пусть в доме будет тепло, а на столе — самое вкусное!",
+  "Ты у нас самая лучшая. И это не обсуждается!"
+];
+const CANDLES = 7; // сколько свечей на торте
+/* ====================================== */
+
+const $ = id => document.getElementById(id);
+const table = $('table');
+let cards = [], srcs = [], cur = 0, z = 10;
+
+// заголовок по буквам
+$('title').innerHTML = [...TITLE].map((c,i)=>
+  `<span style="animation-delay:${i*.06}s">${c===' '?'&nbsp;':c}</span>`).join('');
+$('letter').textContent = MESSAGE;
+
+// ищем фото: photos/1.jpg, 2.jpg ... (до 60 штук)
+const EXT = ['jpg','jpeg','png','webp','JPG','JPEG','PNG'];
+function tryLoad(i,k=0){
+  return new Promise(res=>{
+    if(k>=EXT.length) return res(null);
+    const s = `photos/${i}.${EXT[k]}`, im = new Image();
+    im.onload = ()=>res(s);
+    im.onerror = ()=>tryLoad(i,k+1).then(res);
+    im.src = s;
+  });
+}
+
+async function build(){
+  const found = await Promise.all(Array.from({length:60},(_,i)=>tryLoad(i+1)));
+  found.forEach((s,i)=>{ if(s) srcs.push({src:s,cap:CAPTIONS[i+1]||''}); });
+  if(!srcs.length){
+    table.innerHTML = '<p class="hint" style="text-align:center">Фото не найдены. Положи файлы 1.jpg, 2.jpg… в папку photos рядом с index.html</p>';
+    return;
+  }
+  srcs.forEach((p,i)=>{
+    const c = document.createElement('div');
+    c.className = 'card';
+    c.innerHTML = `<img src="${p.src}" alt=""><b>${p.cap}</b>`;
+    table.appendChild(c);
+    cards.push(c);
+    drag(c,i);
+  });
+  scatter();
+}
+
+function scatter(){
+  const W = table.clientWidth;
+  const w = W < 600 ? 140 : W < 1000 ? 180 : 210;
+  const h = w*1.3;
+  cards.forEach(c=>c.style.setProperty('--w',w+'px'));
+  const cols = Math.max(1, Math.floor(W/(w*0.9)));
+  const rows = Math.ceil(cards.length/cols);
+  table.style.height = (rows*h*0.92 + h*0.3)+'px';
+  const step = cols>1 ? (W-w-20)/(cols-1) : 0;
+  [...cards].sort(()=>Math.random()-.5).forEach((c,i)=>{
+    const col = i%cols, row = Math.floor(i/cols);
+    let left = cols===1 ? (W-w)/2 : 10 + col*step + (Math.random()-.5)*w*.3;
+    let top  = row*h*0.92 + 20 + (Math.random()-.5)*h*.2;
+    c.style.left = Math.max(4, Math.min(W-w-4, left))+'px';
+    c.style.top  = Math.max(10, top)+'px';
+    c.style.setProperty('--r',(Math.random()*16-8)+'deg');
+  });
+}
+
+// перетаскивание + клик
+function drag(c,i){
+  let d = null;
+  c.addEventListener('pointerdown',e=>{
+    d = {x:e.clientX,y:e.clientY,l:c.offsetLeft,t:c.offsetTop,m:false};
+    c.setPointerCapture(e.pointerId);
+    c.style.zIndex = ++z;
+  });
+  c.addEventListener('pointermove',e=>{
+    if(!d) return;
+    const dx = e.clientX-d.x, dy = e.clientY-d.y;
+    if(!d.m && Math.abs(dx)+Math.abs(dy)>6){ d.m = true; c.classList.add('drag'); }
+    if(d.m){ c.style.left = d.l+dx+'px'; c.style.top = d.t+dy+'px'; }
+  });
+  c.addEventListener('pointerup',()=>{
+    if(!d) return;
+    c.classList.remove('drag');
+    if(!d.m) show(i);
+    d = null;
+  });
+}
+
+// просмотр
+function show(i){
+  cur = (i+srcs.length)%srcs.length;
+  $('bimg').src = srcs[cur].src;
+  $('bcap').textContent = srcs[cur].cap || '♥';
+  $('box').classList.add('on');
+}
+$('x').onclick = ()=>$('box').classList.remove('on');
+$('pv').onclick = ()=>show(cur-1);
+$('nx').onclick = ()=>show(cur+1);
+$('box').onclick = e=>{ if(e.target.id==='box') $('x').click(); };
+document.addEventListener('keydown',e=>{
+  if(!$('box').classList.contains('on')) return;
+  if(e.key==='ArrowLeft') show(cur-1);
+  if(e.key==='ArrowRight') show(cur+1);
+  if(e.key==='Escape') $('x').click();
+});
+
+// сюрприз: дождь из эмодзи
+function rain(){
+  const E = ['🌸','💛','🎂','🌷','✨','🎈','🎁'];
+  for(let i=0;i<45;i++){
+    const s = document.createElement('span');
+    s.className = 'fall';
+    s.textContent = E[i%E.length];
+    s.style.cssText = `left:${Math.random()*100}vw;font-size:${18+Math.random()*24}px;animation-duration:${3+Math.random()*3}s;animation-delay:${Math.random()*2}s`;
+    document.body.appendChild(s);
+    setTimeout(()=>s.remove(),9000);
+  }
+}
+$('surprise').onclick = rain;
+$('shuffle').onclick = scatter;
+
+// открытие печати
+$('seal').onclick = ()=>{
+  $('intro').classList.add('gone');
+  document.body.classList.add('open');
+  setTimeout(rain,500);
+  au.play().then(()=>{ $('music').textContent = 'Выключить музыку'; }).catch(()=>{});
+};
+
+// --- всплывающее окно для игр ---
+function pop(html){ $('pc').innerHTML = html; $('pop').classList.add('on'); }
+$('px').onclick = ()=>$('pop').classList.remove('on');
+addEventListener('keydown',e=>{ if(e.key==='Escape') $('px').click(); });
+
+// --- пожелания ---
+let lastW = -1;
+function wish(){
+  let i; do{ i = Math.floor(Math.random()*WISHES.length); }while(i===lastW && WISHES.length>1);
+  lastW = i;
+  pop(`<div class="note">${WISHES[i]}</div><button class="again" onclick="wish()">Ещё одно пожелание</button>`);
+}
+$('wish').onclick = wish;
+
+// --- игра в пары ---
+function memo(){
+  if(srcs.length<2) return pop('<p class="hint">Нужно хотя бы 2 фото</p>');
+  const n = Math.min(6,srcs.length);
+  const deck = [...srcs].sort(()=>Math.random()-.5).slice(0,n);
+  const d = [...deck,...deck].sort(()=>Math.random()-.5);
+  pop(`<p class="hint" id="mt">Найди пары одинаковых фото</p><div class="mem">${
+    d.map(p=>`<button class="mc" data-s="${p.src}"><i><span class="bk">♥</span><img src="${p.src}" alt=""></i></button>`).join('')
+  }</div><button class="again" onclick="memo()">Начать заново</button>`);
+  let first = null, lock = false, left = n, moves = 0;
+  document.querySelectorAll('.mc').forEach(b=>b.onclick=()=>{
+    if(lock || b.classList.contains('up')) return;
+    b.classList.add('up');
+    if(!first){ first = b; return; }
+    moves++;
+    if(first.dataset.s===b.dataset.s){
+      first.classList.add('ok'); b.classList.add('ok'); first = null;
+      if(--left===0){ $('mt').textContent = 'Умница! Все пары найдены за '+moves+' ходов'; rain(); }
+    } else {
+      lock = true; const a = first; first = null;
+      setTimeout(()=>{ a.classList.remove('up'); b.classList.remove('up'); lock = false; },900);
+    }
+  });
+}
+$('memo').onclick = memo;
+
+// --- торт со свечами ---
+function cake(){
+  pop(`<p class="hint" id="ct">Загадай желание и задуй свечи: нажимай на них!</p>
+  <div class="cake"><div class="cakec">${'<button class="cd" aria-label="Свеча"></button>'.repeat(CANDLES)}</div><div class="cl c1"></div><div class="cl c2"></div></div>`);
+  let left = CANDLES;
+  document.querySelectorAll('.cd').forEach(b=>b.onclick=()=>{
+    if(b.classList.contains('off')) return;
+    b.classList.add('off');
+    if(--left===0){ $('ct').textContent = 'Ура! Пусть желание обязательно сбудется!'; rain(); }
+  });
+}
+$('cake').onclick = cake;
+
+// --- стирашка: сотри фольгу, под ней фото ---
+function scratch(){
+  if(!srcs.length) return pop('<p class="hint">Сначала положи фото в папку photos</p>');
+  const p = srcs[Math.floor(Math.random()*srcs.length)];
+  pop(`<p class="hint" id="st">Стирай пальцем и смотри, что спрятано</p>
+  <div class="scr"><img src="${p.src}" alt=""><canvas id="cv" width="420" height="420"></canvas></div>
+  <div class="hint" id="sc"></div><button class="again" onclick="scratch()">Ещё одну</button>`);
+  const cv = $('cv'), x = cv.getContext('2d');
+  const g = x.createLinearGradient(0,0,420,420);
+  g.addColorStop(0,'#f2c46d'); g.addColorStop(.5,'#fff1c1'); g.addColorStop(1,'#d9993a');
+  x.fillStyle = g; x.fillRect(0,0,420,420);
+  x.fillStyle = '#7a4a12'; x.font = '46px Caveat,cursive'; x.textAlign = 'center';
+  x.fillText('Сотри меня ✨',210,215);
+  let down = false, done = false;
+  const dot = e=>{
+    const r = cv.getBoundingClientRect(), k = 420/r.width;
+    x.globalCompositeOperation = 'destination-out';
+    x.beginPath(); x.arc((e.clientX-r.left)*k,(e.clientY-r.top)*k,30,0,7); x.fill();
+  };
+  cv.onpointerdown = e=>{ down = true; cv.setPointerCapture(e.pointerId); dot(e); };
+  cv.onpointermove = e=>{ if(down) dot(e); };
+  cv.onpointerup = ()=>{
+    down = false; if(done) return;
+    const d = x.getImageData(0,0,420,420).data; let c = 0, t = 0;
+    for(let i=3;i<d.length;i+=160){ t++; if(d[i]===0) c++; }
+    if(c/t>.5){ done = true; cv.style.opacity = 0; cv.style.pointerEvents = 'none';
+      $('st').textContent = 'Вот она!'; $('sc').textContent = p.cap; rain(); }
+  };
+}
+$('scratch').onclick = scratch;
+
+// --- волшебный сад: нажимай, расти цветы ---
+function garden(){
+  pop(`<p class="hint">Нажимай в саду: вырастут цветы с пожеланиями</p>
+  <div class="garden" id="g"><span class="bf" id="bf">🦋</span></div>`);
+  const g = $('g'), bf = $('bf'); let n = 0;
+  bf.style.left = '20%'; bf.style.top = '15%';
+  const fly = e=>{ const r = g.getBoundingClientRect();
+    bf.style.left = (e.clientX-r.left-17)+'px'; bf.style.top = (e.clientY-r.top-17)+'px'; };
+  g.onpointermove = fly;
+  g.onclick = e=>{
+    fly(e);
+    const r = g.getBoundingClientRect(), x = e.clientX-r.left, y = e.clientY-r.top;
+    const f = document.createElement('span');
+    f.className = 'fl'; f.textContent = ['🌸','🌷','🌻','🌼','🌹','💐'][n%6];
+    f.style.left = x+'px'; f.style.top = y+'px'; g.appendChild(f);
+    const b = document.createElement('div');
+    b.className = 'bub'; b.textContent = WISHES[n%WISHES.length];
+    b.style.left = Math.max(90,Math.min(r.width-90,x))+'px';
+    b.style.top = Math.max(60,y-52)+'px'; g.appendChild(b);
+    setTimeout(()=>b.remove(),3500);
+    if(++n===12) setTimeout(rain,700);
+  };
+}
+$('garden').onclick = garden;
+
+// --- слайд-шоу ---
+let st = null;
+function slides(){ if(!srcs.length) return; show(0); clearInterval(st); st = setInterval(()=>show(cur+1),3500); }
+$('slides').onclick = slides;
+$('box').addEventListener('click',()=>clearInterval(st));
+addEventListener('keydown',()=>clearInterval(st));
+
+// --- музыка (файл music.mp3 рядом с index.html) ---
+const au = new Audio('music.mp3'); au.loop = true;
+au.onloadedmetadata = ()=>{ $('music').hidden = false; };
+$('music').onclick = ()=>{
+  if(au.paused){ au.play(); $('music').textContent = 'Выключить музыку'; }
+  else { au.pause(); $('music').textContent = 'Музыка'; }
+};
+
+// --- след из искорок: за мышкой и за пальцем ---
+let lx = -99, ly = -99;
+const TR = ['✦','♥','✿','✨','❀'], TC = ['#f2c46d','#ff8fa3','#ffffff','#ffd9de'];
+const calm = matchMedia('(prefers-reduced-motion:reduce)').matches;
+function trail(x,y){
+  if(calm || Math.hypot(x-lx,y-ly)<16) return;
+  lx = x; ly = y;
+  const s = document.createElement('span');
+  s.className = 'tr';
+  s.textContent = TR[Math.floor(Math.random()*TR.length)];
+  s.style.cssText = `left:${x}px;top:${y}px;color:${TC[Math.floor(Math.random()*TC.length)]};font-size:${12+Math.random()*14}px;--dx:${Math.random()*40-20}px;--dy:${20+Math.random()*30}px`;
+  document.body.appendChild(s);
+  setTimeout(()=>s.remove(),950);
+}
+addEventListener('pointermove',e=>{ if(e.pointerType!=='touch') trail(e.clientX,e.clientY); });
+['touchstart','touchmove'].forEach(t=>addEventListener(t,e=>{
+  const p = e.touches[0]; if(p) trail(p.clientX,p.clientY);
+},{passive:true}));
+
+let rt; addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(scatter,250);});
+build();
+</script>
+</body>
+</html>
